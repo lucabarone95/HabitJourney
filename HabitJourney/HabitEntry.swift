@@ -1,18 +1,42 @@
 import Foundation
 
-/// Basic habit definition that repeats every day for the week.
-struct Habit: Identifiable, Codable {
-    /// Stable identifier for the habit.
+/// Categories a main habit can belong to.
+enum HabitCategory: String, CaseIterable, Codable, Identifiable {
+    case learning = "Learning"
+    case body = "Body/Sport"
+    case other = "Other"
+
+    var id: String { rawValue }
+}
+
+/// A single sub-habit that contributes to the completion of a main habit.
+struct SubHabit: Identifiable, Codable {
     let id: UUID
-    /// Short title shown in the list.
     var title: String
-    /// Target count required to mark the habit complete for a day.
     var target: Int
 
     init(id: UUID = UUID(), title: String = "", target: Int = 1) {
         self.id = id
         self.title = title
         self.target = target
+    }
+}
 
+/// Main habit containing a set of sub-habits. The habit is completed once all
+/// sub-habits are completed for the day.
+struct Habit: Identifiable, Codable {
+    let id: UUID
+    var title: String
+    var category: HabitCategory
+    var subHabits: [SubHabit]
+
+    init(id: UUID = UUID(),
+         title: String = "",
+         category: HabitCategory = .other,
+         subHabits: [SubHabit] = []) {
+        self.id = id
+        self.title = title
+        self.category = category
+        self.subHabits = subHabits
     }
 }
