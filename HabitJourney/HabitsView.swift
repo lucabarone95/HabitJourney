@@ -5,18 +5,41 @@ struct HabitsView: View {
     @ObservedObject var store: HabitStore
     @State private var showEditor = false
     @State private var habitName = ""
-    @State private var progress = 0
+    @State private var target = 1
 
 
-    var body: some View {
-        VStack {
-            DateHeader(manager: manager)
+                ForEach(store.habits) { habit in
+                        VStack(alignment: .leading) {
+                            Text(habit.title)
+                            Text("\(store.progress(for: habit, on: manager.selectedDate))/\(habit.target)")
+                                .font(.caption)
+                                .foregroundColor(color(for: store.status(for: habit, on: manager.selectedDate)))
+                        }
+                        if store.status(for: habit, on: manager.selectedDate) != .completed {
+                            Button(action: {
+                                store.increment(habit, on: manager.selectedDate)
+                            }) {
+                                Image(systemName: "plus.circle")
+                            }
+                        } else {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(.green)
+                        }
 
-            List {
-                ForEach(store.entries(for: manager.selectedDate)) { entry in
-                    HStack {
-                        Text(entry.name)
-                        Spacer()
+            Button("Add Habit") {
+                target = 1
+            .disabled(store.habits.count >= 3)
+                    Stepper(value: $target, in: 1...10) {
+                        Text("Target: \(target)")
+                            store.addHabit(title: habitName, target: target)
+    private func color(for status: HabitStore.Status) -> Color {
+        switch status {
+        case .completed: return .green
+        case .missed: return .red
+        case .inProgress: return .orange
+        }
+    }
+
                         Text("\(entry.progress)")
                     }
                 }
