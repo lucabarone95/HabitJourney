@@ -67,5 +67,6 @@ class HabitStore: ObservableObject {
         calendar.firstWeekday = 2 // Monday
         let components = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: date)
         return calendar.date(from: components) ?? date
+
     }
 }

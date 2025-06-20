@@ -7,6 +7,7 @@ struct HabitsView: View {
     @State private var habitName = ""
     @State private var target = 1
 
+
     var body: some View {
         VStack {
             DateHeader(manager: manager)
@@ -56,6 +57,7 @@ struct HabitsView: View {
                     ToolbarItem(placement: .confirmationAction) {
                         Button("Save") {
                             store.addHabit(title: habitName, target: target, for: manager.selectedDate)
+
                             showEditor = false
                         }
                     }
