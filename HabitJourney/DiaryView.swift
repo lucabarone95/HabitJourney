@@ -7,10 +7,10 @@ struct DiaryView: View {
     @State private var draftThoughts = ""
     @State private var draftEmotions = ""
 
+
     var body: some View {
         VStack {
             DateHeader(manager: manager)
-
             if let entry = store.entry(for: manager.selectedDate) {
                 VStack(alignment: .leading) {
                     Text("Thoughts").font(.headline)
@@ -58,6 +58,7 @@ struct DiaryView: View {
                     }
                 }
             }
+
         }
     }
 

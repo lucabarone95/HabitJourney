@@ -7,6 +7,7 @@ struct HabitsView: View {
     @State private var habitName = ""
     @State private var progress = 0
 
+
     var body: some View {
         VStack {
             DateHeader(manager: manager)
