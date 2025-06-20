@@ -14,7 +14,7 @@ struct HabitsView: View {
     @State private var showRename = false
     @State private var newSubName = ""
     @State private var newSubTarget = 1
-    @State private var showAddSub = false
+    @State private var addSubParent: Habit?
 
 
     var body: some View {
@@ -120,29 +120,27 @@ struct HabitsView: View {
             }
         }
 
-        .sheet(isPresented: $showAddSub) {
-            if let habit = editingHabit {
-                NavigationView {
-                    Form {
-                        TextField("Title", text: $newSubName)
-                        Stepper(value: $newSubTarget, in: 1...10) {
-                            Text("Target: \(newSubTarget)")
+        .sheet(item: $addSubParent) { habit in
+            NavigationView {
+                Form {
+                    TextField("Title", text: $newSubName)
+                    Stepper(value: $newSubTarget, in: 1...10) {
+                        Text("Target: \(newSubTarget)")
+                    }
+                }
+                .navigationTitle("New Sub-Habit")
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Save") {
+                            store.addSubHabit(to: habit,
+                                              title: newSubName,
+                                              target: newSubTarget,
+                                              for: manager.selectedDate)
+                            addSubParent = nil
                         }
                     }
-                    .navigationTitle("New Sub-Habit")
-                    .toolbar {
-                        ToolbarItem(placement: .confirmationAction) {
-                            Button("Save") {
-                                store.addSubHabit(to: habit,
-                                                  title: newSubName,
-                                                  target: newSubTarget,
-                                                  for: manager.selectedDate)
-                                showAddSub = false
-                            }
-                        }
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button("Cancel") { showAddSub = false }
-                        }
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel") { addSubParent = nil }
                     }
                 }
             }
@@ -183,10 +181,9 @@ struct HabitsView: View {
                     showRename = true
                 }
                 Button("Add Sub Habit") {
-                    editingHabit = habit
+                    addSubParent = habit
                     newSubName = ""
                     newSubTarget = 1
-                    showAddSub = true
                 }
             } label: {
                 Image(systemName: "ellipsis")

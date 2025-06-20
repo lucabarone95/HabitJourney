@@ -109,6 +109,18 @@ class HabitStore: ObservableObject {
         let count = progress(for: subHabit, on: date)
         if count >= subHabit.target { return .completed }
 
+        let today = Calendar.current.startOfDay(for: Date())
+        let day = Calendar.current.startOfDay(for: date)
+        if day < today { return .missed }
+        return .inProgress
+    }
+
+    /// Returns the completion status for a full habit on a date. A habit is
+    /// completed only when all of its sub-habits are completed for the day.
+    func status(for habit: Habit, on date: Date) -> Status {
+        if habit.subHabits.allSatisfy({ status(for: $0, on: date) == .completed }) {
+            return .completed
+        }
 
         let today = Calendar.current.startOfDay(for: Date())
         let day = Calendar.current.startOfDay(for: date)
