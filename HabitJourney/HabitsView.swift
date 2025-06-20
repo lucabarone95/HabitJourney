@@ -16,6 +16,7 @@ struct HabitsView: View {
     @State private var newSubTarget = 1
     @State private var showAddSub = false
 
+
     var body: some View {
         VStack {
             DateHeader(manager: manager)
@@ -41,6 +42,7 @@ struct HabitsView: View {
                                         .foregroundColor(.green)
                                 }
                             }
+
                         }
                     }
                 }
@@ -51,6 +53,7 @@ struct HabitsView: View {
                 subHabitName = ""
                 target = 1
                 category = .other
+
                 showEditor = true
             }
             .padding()
@@ -72,6 +75,7 @@ struct HabitsView: View {
                         Stepper(value: $target, in: 1...10) {
                             Text("Target: \(target)")
                         }
+
                     }
                 }
                 .navigationTitle("New Habit")
@@ -83,6 +87,7 @@ struct HabitsView: View {
                                            subHabitTitle: subHabitName,
                                            target: target,
                                            for: manager.selectedDate)
+
                             showEditor = false
                         }
                     }
@@ -144,6 +149,7 @@ struct HabitsView: View {
         }
         }
 
+
     private func color(for status: HabitStore.Status) -> Color {
         switch status {
         case .completed: return .green
@@ -189,6 +195,7 @@ struct HabitsView: View {
             }
         }
     }
+
 }
 
 #Preview {

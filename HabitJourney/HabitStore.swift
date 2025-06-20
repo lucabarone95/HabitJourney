@@ -6,6 +6,7 @@ class HabitStore: ObservableObject {
     /// Habits are organized by week. Each week can have at most three habits.
     @Published private var weeklyHabits: [Date: [Habit]] = [:]
     /// Mapping from day -> sub-habit id -> progress count.
+
     @Published private var progress: [Date: [UUID: Int]] = [:]
 
     // MARK: Habit management
@@ -70,6 +71,32 @@ class HabitStore: ObservableObject {
     func increment(_ subHabit: SubHabit, on date: Date) {
         let current = progress(for: subHabit, on: date)
         setProgress(current + 1, for: subHabit, on: date)
+    /// three has not been reached.
+    func addHabit(title: String, target: Int, for date: Date) {
+        let week = startOfWeek(for: date)
+        guard weeklyHabits[week, default: []].count < 3 else { return }
+        let habit = Habit(title: title, target: target)
+        weeklyHabits[week, default: []].append(habit)
+    }
+
+    // MARK: Progress helpers
+
+    /// Returns the progress for the given habit on a specific day.
+    func progress(for habit: Habit, on date: Date) -> Int {
+        let day = Calendar.current.startOfDay(for: date)
+        return progress[day]?[habit.id] ?? 0
+    }
+
+    /// Sets the progress for a habit on the provided date.
+    func setProgress(_ value: Int, for habit: Habit, on date: Date) {
+        let day = Calendar.current.startOfDay(for: date)
+        progress[day, default: [:]][habit.id] = value
+    }
+
+    /// Convenience method to increase progress by one.
+    func increment(_ habit: Habit, on date: Date) {
+        let current = progress(for: habit, on: date)
+        setProgress(current + 1, for: habit, on: date)
     }
 
     /// Status describing completion for a given day.
@@ -82,22 +109,10 @@ class HabitStore: ObservableObject {
         let count = progress(for: subHabit, on: date)
         if count >= subHabit.target { return .completed }
 
+
         let today = Calendar.current.startOfDay(for: Date())
         let day = Calendar.current.startOfDay(for: date)
         if day < today { return .missed }
-        return .inProgress
-    }
-
-    /// Returns the completion status for a main habit. A habit is complete
-    /// when all of its sub-habits are completed for the specified day.
-    func status(for habit: Habit, on date: Date) -> Status {
-        let statuses = habit.subHabits.map { status(for: $0, on: date) }
-        if statuses.allSatisfy({ $0 == .completed }) {
-            return .completed
-        }
-        if statuses.contains(where: { $0 == .missed }) {
-            return .missed
-        }
         return .inProgress
     }
 
@@ -107,5 +122,6 @@ class HabitStore: ObservableObject {
         calendar.firstWeekday = 2 // Monday
         let components = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: date)
         return calendar.date(from: components) ?? date
+
     }
 }
