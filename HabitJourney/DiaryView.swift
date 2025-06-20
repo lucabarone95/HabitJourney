@@ -7,6 +7,10 @@ struct DiaryView: View {
     @State private var draftThoughts = ""
     @State private var draftEmotions = ""
 
+    var body: some View {
+        VStack {
+            DateHeader(manager: manager)
+
 
     var body: some View {
         VStack {

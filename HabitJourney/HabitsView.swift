@@ -5,7 +5,7 @@ struct HabitsView: View {
     @ObservedObject var store: HabitStore
     @State private var showEditor = false
     @State private var habitName = ""
-    @State private var progress = 0
+    @State private var target = 1
 
 
     var body: some View {
@@ -13,35 +13,51 @@ struct HabitsView: View {
             DateHeader(manager: manager)
 
             List {
-                ForEach(store.entries(for: manager.selectedDate)) { entry in
+                ForEach(store.habits(for: manager.selectedDate)) { habit in
                     HStack {
-                        Text(entry.name)
+                        VStack(alignment: .leading) {
+                            Text(habit.title)
+                            Text("\(store.progress(for: habit, on: manager.selectedDate))/\(habit.target)")
+                                .font(.caption)
+                                .foregroundColor(color(for: store.status(for: habit, on: manager.selectedDate)))
+                        }
                         Spacer()
-                        Text("\(entry.progress)")
+                        if store.status(for: habit, on: manager.selectedDate) != .completed {
+                            Button(action: {
+                                store.increment(habit, on: manager.selectedDate)
+                            }) {
+                                Image(systemName: "plus.circle")
+                            }
+                        } else {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(.green)
+                        }
                     }
                 }
             }
 
-            Button("Add Habit Entry") {
+            Button("Add Habit") {
                 habitName = ""
-                progress = 0
+                target = 1
                 showEditor = true
             }
             .padding()
+            .disabled(store.habits(for: manager.selectedDate).count >= 3)
         }
         .sheet(isPresented: $showEditor) {
             NavigationView {
                 Form {
                     TextField("Habit", text: $habitName)
-                    Stepper(value: $progress, in: 0...10) {
-                        Text("Progress: \(progress)")
+                    Stepper(value: $target, in: 1...10) {
+                        Text("Target: \(target)")
                     }
                 }
                 .navigationTitle("New Habit")
                 .toolbar {
                     ToolbarItem(placement: .confirmationAction) {
                         Button("Save") {
-                            store.addEntry(for: manager.selectedDate, name: habitName, progress: progress)
+                            store.addHabit(title: habitName, target: target, for: manager.selectedDate)
+
                             showEditor = false
                         }
                     }
@@ -50,6 +66,14 @@ struct HabitsView: View {
                     }
                 }
             }
+        }
+    }
+
+    private func color(for status: HabitStore.Status) -> Color {
+        switch status {
+        case .completed: return .green
+        case .missed: return .red
+        case .inProgress: return .orange
         }
     }
 
