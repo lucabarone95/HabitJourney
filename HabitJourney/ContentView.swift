@@ -1,21 +1,19 @@
-//
-//  ContentView.swift
-//  HabitJourney
-//
-//  Created by Luca Barone on 20/6/25.
-//
-
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject private var dateManager = DateManager()
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        TabView {
+            DiaryView(manager: dateManager)
+                .tabItem {
+                    Label("Diary", systemImage: "book")
+                }
+            HabitsView(manager: dateManager)
+                .tabItem {
+                    Label("Habits", systemImage: "checkmark.circle")
+                }
         }
-        .padding()
     }
 }
 
