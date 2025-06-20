@@ -12,12 +12,21 @@ struct DiaryView: View {
             DateHeader(manager: manager)
 
             if let entry = store.entry(for: manager.selectedDate) {
-                VStack(alignment: .leading) {
-                    Text("Thoughts").font(.headline)
-                    Text(entry.thoughts).padding(.bottom)
-                    Text("Emotions").font(.headline)
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Thoughts")
+                        .font(.headline)
+                    Text(entry.thoughts)
+                    Divider()
+                    Text("Emotions")
+                        .font(.headline)
                     Text(entry.emotions)
                 }
+                .padding()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color(.secondarySystemBackground))
+                )
                 .padding()
             } else {
                 Text("No entry for \(formattedDate)")
@@ -33,6 +42,7 @@ struct DiaryView: View {
                 draftEmotions = existing?.emotions ?? ""
                 showEditor = true
             }
+            .buttonStyle(.borderedProminent)
             .padding()
         }
         .sheet(isPresented: $showEditor) {
@@ -60,6 +70,10 @@ struct DiaryView: View {
             }
 
         }
+        .background(
+            LinearGradient(colors: [Color(.systemBackground), Color(.secondarySystemBackground)], startPoint: .top, endPoint: .bottom)
+                .ignoresSafeArea()
+        )
     }
 
     private var formattedDate: String {

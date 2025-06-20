@@ -7,14 +7,21 @@ struct ContentView: View {
 
     var body: some View {
         TabView {
-            DiaryView(manager: dateManager, store: diaryStore)
-                .tabItem {
-                    Label("Diary", systemImage: "book")
-                }
-            HabitsView(manager: dateManager, store: habitStore)
-                .tabItem {
-                    Label("Habits", systemImage: "checkmark.circle")
-                }
+            NavigationStack {
+                DiaryView(manager: dateManager, store: diaryStore)
+                    .navigationTitle("Diary")
+            }
+            .tabItem {
+                Label("Diary", systemImage: "book")
+            }
+
+            NavigationStack {
+                HabitsView(manager: dateManager, store: habitStore)
+                    .navigationTitle("Habits")
+            }
+            .tabItem {
+                Label("Habits", systemImage: "checkmark.circle")
+            }
         }
     }
 }

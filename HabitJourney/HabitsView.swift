@@ -28,6 +28,9 @@ struct HabitsView: View {
                             HStack {
                                 VStack(alignment: .leading) {
                                     Text(sub.title)
+                                    ProgressView(value: Double(store.progress(for: sub, on: manager.selectedDate)), total: Double(sub.target))
+                                        .progressViewStyle(.linear)
+                                        .tint(color(for: store.status(for: sub, on: manager.selectedDate)))
                                     Text("\(store.progress(for: sub, on: manager.selectedDate))/\(sub.target)")
                                         .font(.caption)
                                         .foregroundColor(color(for: store.status(for: sub, on: manager.selectedDate)))
@@ -47,6 +50,7 @@ struct HabitsView: View {
                     }
                 }
             }
+            .listStyle(.insetGrouped)
 
             Button("Add Habit") {
                 habitName = ""
@@ -56,6 +60,7 @@ struct HabitsView: View {
 
                 showEditor = true
             }
+            .buttonStyle(.borderedProminent)
             .padding()
             .disabled(store.habits(for: manager.selectedDate).count >= 3)
         }
@@ -146,6 +151,10 @@ struct HabitsView: View {
             }
         }
         }
+        .background(
+            LinearGradient(colors: [Color(.systemBackground), Color(.secondarySystemBackground)], startPoint: .top, endPoint: .bottom)
+                .ignoresSafeArea()
+        )
 
 
     private func color(for status: HabitStore.Status) -> Color {

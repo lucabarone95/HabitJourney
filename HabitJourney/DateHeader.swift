@@ -10,6 +10,8 @@ struct DateHeader: View {
                 manager.selectedDate = Calendar.current.date(byAdding: .day, value: -1, to: manager.selectedDate) ?? manager.selectedDate
             }) {
                 Image(systemName: "chevron.left")
+                    .font(.title3)
+                    .foregroundColor(.accentColor)
             }
 
             Spacer()
@@ -35,6 +37,8 @@ struct DateHeader: View {
                 manager.selectedDate = Calendar.current.date(byAdding: .day, value: 1, to: manager.selectedDate) ?? manager.selectedDate
             }) {
                 Image(systemName: "chevron.right")
+                    .font(.title3)
+                    .foregroundColor(.accentColor)
             }
         }
         .padding()
