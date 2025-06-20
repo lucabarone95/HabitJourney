@@ -71,11 +71,13 @@ class HabitStore: ObservableObject {
     func increment(_ subHabit: SubHabit, on date: Date) {
         let current = progress(for: subHabit, on: date)
         setProgress(current + 1, for: subHabit, on: date)
+    }
+
     /// three has not been reached.
     func addHabit(title: String, target: Int, for date: Date) {
         let week = startOfWeek(for: date)
         guard weeklyHabits[week, default: []].count < 3 else { return }
-        let habit = Habit(title: title, target: target)
+        let habit = Habit(title: title)
         weeklyHabits[week, default: []].append(habit)
     }
 
@@ -121,7 +123,6 @@ class HabitStore: ObservableObject {
         if habit.subHabits.allSatisfy({ status(for: $0, on: date) == .completed }) {
             return .completed
         }
-
         let today = Calendar.current.startOfDay(for: Date())
         let day = Calendar.current.startOfDay(for: date)
         if day < today { return .missed }
