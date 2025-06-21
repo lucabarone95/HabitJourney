@@ -84,5 +84,5 @@ struct DiaryView: View {
 }
 
 #Preview {
-    DiaryView(manager: DateManager(), store: DiaryStore())
+    DiaryView(manager: DateManager(), store: DiaryStore(context: ModelController.shared.container.mainContext))
 }

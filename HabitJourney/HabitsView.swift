@@ -206,5 +206,5 @@ struct HabitsView: View {
 }
 
 #Preview {
-    HabitsView(manager: DateManager(), store: HabitStore())
+    HabitsView(manager: DateManager(), store: HabitStore(context: ModelController.shared.container.mainContext))
 }

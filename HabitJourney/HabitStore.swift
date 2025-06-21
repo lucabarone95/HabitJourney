@@ -1,13 +1,29 @@
 import Foundation
 import SwiftUI
+import SwiftData
 
 /// Stores the weekly habits and tracks daily progress for each of them.
+@MainActor
 class HabitStore: ObservableObject {
     /// Habits are organized by week. Each week can have at most three habits.
     @Published private var weeklyHabits: [Date: [Habit]] = [:]
-    /// Mapping from day -> sub-habit id -> progress count.
 
-    @Published private var progress: [Date: [UUID: Int]] = [:]
+    private let context: ModelContext
+
+    init(context: ModelContext) {
+        self.context = context
+        load()
+    }
+
+    private func load() {
+        let descriptor = FetchDescriptor<Habit>()
+        if let items = try? context.fetch(descriptor) {
+            for habit in items {
+                let week = habit.weekOf
+                weeklyHabits[week, default: []].append(habit)
+            }
+        }
+    }
 
     // MARK: Habit management
 
@@ -28,29 +44,22 @@ class HabitStore: ObservableObject {
         let week = startOfWeek(for: date)
         guard weeklyHabits[week, default: []].count < 3 else { return }
         let sub = SubHabit(title: subHabitTitle, target: target)
-        let habit = Habit(title: title, category: category, subHabits: [sub])
+        let habit = Habit(title: title, category: category, subHabits: [sub], weekOf: week)
+        context.insert(habit)
         weeklyHabits[week, default: []].append(habit)
+        try? context.save()
     }
 
     /// Rename an existing habit in a given week.
     func renameHabit(_ habit: Habit, to newTitle: String, for date: Date) {
-        updateHabit(habit, for: date) { $0.title = newTitle }
+        habit.title = newTitle
+        try? context.save()
     }
 
     /// Add a new sub-habit to an existing habit in the given week.
     func addSubHabit(to habit: Habit, title: String, target: Int, for date: Date) {
-        updateHabit(habit, for: date) { $0.subHabits.append(SubHabit(title: title, target: target)) }
-    }
-
-    /// Helper used to modify a habit inside the storage.
-    private func updateHabit(_ habit: Habit, for date: Date, mutate: (inout Habit) -> Void) {
-        let week = startOfWeek(for: date)
-        guard var habits = weeklyHabits[week],
-              let index = habits.firstIndex(where: { $0.id == habit.id }) else { return }
-        var copy = habits[index]
-        mutate(&copy)
-        habits[index] = copy
-        weeklyHabits[week] = habits
+        habit.subHabits.append(SubHabit(title: title, target: target))
+        try? context.save()
     }
 
     // MARK: Progress helpers
@@ -58,13 +67,27 @@ class HabitStore: ObservableObject {
     /// Returns the progress for the given sub-habit on a specific day.
     func progress(for subHabit: SubHabit, on date: Date) -> Int {
         let day = Calendar.current.startOfDay(for: date)
-        return progress[day]?[subHabit.id] ?? 0
+        let predicate = #Predicate<HabitProgress> { progress in
+            progress.subHabitID == subHabit.id && progress.date == day
+        }
+        let desc = FetchDescriptor(predicate: predicate)
+        return (try? context.fetch(desc).first?.count) ?? 0
     }
 
     /// Sets the progress for a sub-habit on the provided date.
     func setProgress(_ value: Int, for subHabit: SubHabit, on date: Date) {
         let day = Calendar.current.startOfDay(for: date)
-        progress[day, default: [:]][subHabit.id] = value
+        let predicate = #Predicate<HabitProgress> { progress in
+            progress.subHabitID == subHabit.id && progress.date == day
+        }
+        let desc = FetchDescriptor(predicate: predicate)
+        if let existing = try? context.fetch(desc).first {
+            existing.count = value
+        } else {
+            let progress = HabitProgress(habitID: subHabit.id, subHabitID: subHabit.id, date: day, count: value)
+            context.insert(progress)
+        }
+        try? context.save()
     }
 
     /// Convenience method to increase progress by one.
@@ -72,32 +95,26 @@ class HabitStore: ObservableObject {
         let current = progress(for: subHabit, on: date)
         setProgress(current + 1, for: subHabit, on: date)
     }
-    /// three has not been reached.
-    func addHabit(title: String, target: Int, for date: Date) {
-        let week = startOfWeek(for: date)
-        guard weeklyHabits[week, default: []].count < 3 else { return }
-        let habit = Habit(title: title)
-        weeklyHabits[week, default: []].append(habit)
-    }
-
     // MARK: Progress helpers
 
-    /// Returns the progress for the given habit on a specific day.
+    /// Returns the progress for the given habit on a specific day by summing its sub-habits.
     func progress(for habit: Habit, on date: Date) -> Int {
-        let day = Calendar.current.startOfDay(for: date)
-        return progress[day]?[habit.id] ?? 0
+        habit.subHabits.reduce(0) { $0 + progress(for: $1, on: date) }
     }
 
     /// Sets the progress for a habit on the provided date.
     func setProgress(_ value: Int, for habit: Habit, on date: Date) {
-        let day = Calendar.current.startOfDay(for: date)
-        progress[day, default: [:]][habit.id] = value
+        // distribute value across sub habits equally
+        let perSub = max(1, value / max(habit.subHabits.count, 1))
+        for sub in habit.subHabits {
+            setProgress(perSub, for: sub, on: date)
+        }
     }
 
-    /// Convenience method to increase progress by one.
+    /// Convenience method to increase progress by one on the first sub habit.
     func increment(_ habit: Habit, on date: Date) {
-        let current = progress(for: habit, on: date)
-        setProgress(current + 1, for: habit, on: date)
+        guard let sub = habit.subHabits.first else { return }
+        increment(sub, on: date)
     }
 
     /// Status describing completion for a given day.
