@@ -6,12 +6,16 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct HabitJourneyApp: App {
+    private var container: ModelContainer = ModelController.shared.container
+
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .modelContainer(container)
         }
     }
 }

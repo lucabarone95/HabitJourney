@@ -1,4 +1,5 @@
 import Foundation
+import SwiftData
 
 /// Categories a main habit can belong to.
 enum HabitCategory: String, CaseIterable, Codable, Identifiable {
@@ -10,8 +11,9 @@ enum HabitCategory: String, CaseIterable, Codable, Identifiable {
 }
 
 /// A single sub-habit that contributes to the completion of a main habit.
-struct SubHabit: Identifiable, Codable {
-    let id: UUID
+@Model
+final class SubHabit: Identifiable {
+    var id: UUID
     var title: String
     var target: Int
 
@@ -24,19 +26,44 @@ struct SubHabit: Identifiable, Codable {
 
 /// Main habit containing a set of sub-habits. The habit is completed once all
 /// sub-habits are completed for the day.
-struct Habit: Identifiable, Codable {
-    let id: UUID
+@Model
+final class Habit: Identifiable {
+    var id: UUID
     var title: String
     var category: HabitCategory
     var subHabits: [SubHabit]
+    var weekOf: Date
 
     init(id: UUID = UUID(),
          title: String = "",
          category: HabitCategory = .other,
-         subHabits: [SubHabit] = []) {
+         subHabits: [SubHabit] = [],
+         weekOf: Date) {
         self.id = id
         self.title = title
         self.category = category
         self.subHabits = subHabits
+        self.weekOf = weekOf
+    }
+}
+
+@Model
+final class HabitProgress: Identifiable {
+    var id: UUID
+    var habitID: UUID
+    var subHabitID: UUID?
+    var date: Date
+    var count: Int
+
+    init(id: UUID = UUID(),
+         habitID: UUID,
+         subHabitID: UUID? = nil,
+         date: Date,
+         count: Int = 0) {
+        self.id = id
+        self.habitID = habitID
+        self.subHabitID = subHabitID
+        self.date = date
+        self.count = count
     }
 }
