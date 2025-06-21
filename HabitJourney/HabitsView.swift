@@ -19,7 +19,7 @@ struct HabitsView: View {
 
     var body: some View {
         VStack {
-            DateHeader(manager: manager)
+            DateHeader(manager: manager, store: store)
 
             List {
                 ForEach(store.habits(for: manager.selectedDate)) { habit in

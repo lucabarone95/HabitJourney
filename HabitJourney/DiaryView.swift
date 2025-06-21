@@ -3,13 +3,14 @@ import SwiftUI
 struct DiaryView: View {
     @ObservedObject var manager: DateManager
     @ObservedObject var store: DiaryStore
+    @ObservedObject var habitStore: HabitStore
     @State private var showEditor = false
     @State private var draftThoughts = ""
     @State private var draftEmotions = ""
 
     var body: some View {
         VStack {
-            DateHeader(manager: manager)
+            DateHeader(manager: manager, store: habitStore)
 
             if let entry = store.entry(for: manager.selectedDate) {
                 VStack(alignment: .leading, spacing: 8) {
@@ -84,5 +85,5 @@ struct DiaryView: View {
 }
 
 #Preview {
-    DiaryView(manager: DateManager(), store: DiaryStore())
+    DiaryView(manager: DateManager(), store: DiaryStore(), habitStore: HabitStore())
 }

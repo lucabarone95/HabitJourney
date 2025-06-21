@@ -8,7 +8,7 @@ struct ContentView: View {
     var body: some View {
         TabView {
             NavigationStack {
-                DiaryView(manager: dateManager, store: diaryStore)
+                DiaryView(manager: dateManager, store: diaryStore, habitStore: habitStore)
                     .navigationTitle("Diary")
             }
             .tabItem {

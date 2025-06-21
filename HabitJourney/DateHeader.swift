@@ -2,6 +2,7 @@ import SwiftUI
 
 struct DateHeader: View {
     @ObservedObject var manager: DateManager
+    @ObservedObject var store: HabitStore
     @State private var showPicker = false
 
     var body: some View {
@@ -22,8 +23,7 @@ struct DateHeader: View {
             }
             .sheet(isPresented: $showPicker) {
                 VStack {
-                    DatePicker("Select Date", selection: $manager.selectedDate, displayedComponents: .date)
-                        .datePickerStyle(GraphicalDatePickerStyle())
+                    CalendarView(selectedDate: $manager.selectedDate, store: store)
                         .padding()
                     Button("Done") { showPicker = false }
                         .padding()
@@ -52,5 +52,5 @@ struct DateHeader: View {
 }
 
 #Preview {
-    DateHeader(manager: DateManager())
+    DateHeader(manager: DateManager(), store: HabitStore())
 }
