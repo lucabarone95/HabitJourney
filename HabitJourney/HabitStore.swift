@@ -68,7 +68,7 @@ class HabitStore: ObservableObject {
     func progress(for subHabit: SubHabit, on date: Date) -> Int {
         let day = Calendar.current.startOfDay(for: date)
         let predicate = #Predicate<HabitProgress> { progress in
-            progress.subHabitID == subHabit.id && progress.date == day
+            progress.subHabitID == .some(subHabit.id) && progress.date == day
         }
         let desc = FetchDescriptor(predicate: predicate)
         return (try? context.fetch(desc).first?.count) ?? 0
@@ -78,7 +78,7 @@ class HabitStore: ObservableObject {
     func setProgress(_ value: Int, for subHabit: SubHabit, on date: Date) {
         let day = Calendar.current.startOfDay(for: date)
         let predicate = #Predicate<HabitProgress> { progress in
-            progress.subHabitID == subHabit.id && progress.date == day
+            progress.subHabitID == .some(subHabit.id) && progress.date == day
         }
         let desc = FetchDescriptor(predicate: predicate)
         if let existing = try? context.fetch(desc).first {
