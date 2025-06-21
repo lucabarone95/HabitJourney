@@ -150,11 +150,12 @@ struct HabitsView: View {
                 }
             }
         }
-        }
         .background(
             LinearGradient(colors: [Color(.systemBackground), Color(.secondarySystemBackground)], startPoint: .top, endPoint: .bottom)
                 .ignoresSafeArea()
         )
+    }
+        
 
 
     private func color(for status: HabitStore.Status) -> Color {
