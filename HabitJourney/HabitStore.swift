@@ -64,11 +64,18 @@ class HabitStore: ObservableObject {
 
     // MARK: Progress helpers
 
+
     /// Returns the progress for the given sub-habit on a specific day.
     func progress(for subHabit: SubHabit, on date: Date) -> Int {
-        let day = Calendar.current.startOfDay(for: date)
+        let dayStart = Calendar.current.startOfDay(for: date)
+        guard let dayEnd = Calendar.current.date(byAdding: .day, value: 1, to: dayStart) else {
+            return 0
+        }
+        let subHabitID = subHabit.id
         let predicate = #Predicate<HabitProgress> { progress in
-            progress.subHabitID == .some(subHabit.id) && progress.date == day
+            progress.subHabitID == subHabitID &&
+            progress.date >= dayStart &&
+            progress.date < dayEnd
         }
         let desc = FetchDescriptor(predicate: predicate)
         return (try? context.fetch(desc).first?.count) ?? 0
@@ -76,15 +83,22 @@ class HabitStore: ObservableObject {
 
     /// Sets the progress for a sub-habit on the provided date.
     func setProgress(_ value: Int, for subHabit: SubHabit, on date: Date) {
-        let day = Calendar.current.startOfDay(for: date)
+        let dayStart = Calendar.current.startOfDay(for: date)
+        guard let dayEnd = Calendar.current.date(byAdding: .day, value: 1, to: dayStart) else { return }
+        let subHabitID = subHabit.id
+
         let predicate = #Predicate<HabitProgress> { progress in
-            progress.subHabitID == .some(subHabit.id) && progress.date == day
+            progress.subHabitID == subHabitID &&
+            progress.date >= dayStart &&
+            progress.date < dayEnd
         }
         let desc = FetchDescriptor(predicate: predicate)
         if let existing = try? context.fetch(desc).first {
             existing.count = value
         } else {
-            let progress = HabitProgress(habitID: subHabit.id, subHabitID: subHabit.id, date: day, count: value)
+            // This assumes the sub-habit's parent habitID is the same as the sub-habit's ID
+            // which might not be correct depending on your data model structure.
+            let progress = HabitProgress(habitID: subHabit.id, subHabitID: subHabit.id, date: dayStart, count: value)
             context.insert(progress)
         }
         try? context.save()
