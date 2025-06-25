@@ -31,17 +31,20 @@ final class Habit: Identifiable {
     var id: UUID
     var title: String
     var category: HabitCategory
+    var notes: String
     var subHabits: [SubHabit]
     var weekOf: Date
 
     init(id: UUID = UUID(),
          title: String = "",
          category: HabitCategory = .other,
+         notes: String = "",
          subHabits: [SubHabit] = [],
          weekOf: Date) {
         self.id = id
         self.title = title
         self.category = category
+        self.notes = notes
         self.subHabits = subHabits
         self.weekOf = weekOf
     }

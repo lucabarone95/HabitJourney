@@ -8,6 +8,7 @@ struct HabitsView: View {
     @State private var category: HabitCategory = .other
     @State private var subHabitName = ""
     @State private var target = 1
+    @State private var notes = ""
 
     @State private var editingHabit: Habit?
     @State private var renameTitle = ""
@@ -15,6 +16,8 @@ struct HabitsView: View {
     @State private var newSubName = ""
     @State private var newSubTarget = 1
     @State private var addSubParent: Habit?
+    @State private var editingNotesHabit: Habit?
+    @State private var noteDraft = ""
 
 
     var body: some View {
@@ -24,6 +27,11 @@ struct HabitsView: View {
             List {
                 ForEach(store.habits(for: manager.selectedDate)) { habit in
                     Section(header: habitHeader(habit)) {
+                        if !habit.notes.isEmpty {
+                            Text(habit.notes)
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
                         ForEach(habit.subHabits) { sub in
                             HStack {
                                 VStack(alignment: .leading) {
@@ -57,6 +65,7 @@ struct HabitsView: View {
                 subHabitName = ""
                 target = 1
                 category = .other
+                notes = ""
 
                 showEditor = true
             }
@@ -75,6 +84,10 @@ struct HabitsView: View {
                             }
                         }
                     }
+                    Section("Notes") {
+                        TextEditor(text: $notes)
+                            .frame(minHeight: 80)
+                    }
                     Section("First Sub-Habit") {
                         TextField("Title", text: $subHabitName)
                         Stepper(value: $target, in: 1...10) {
@@ -91,6 +104,7 @@ struct HabitsView: View {
                                            category: category,
                                            subHabitTitle: subHabitName,
                                            target: target,
+                                           notes: notes,
                                            for: manager.selectedDate)
 
                             showEditor = false
@@ -120,6 +134,27 @@ struct HabitsView: View {
                         ToolbarItem(placement: .cancellationAction) {
                             Button("Cancel") { showRename = false }
                         }
+                    }
+                }
+            }
+        }
+
+        .sheet(item: $editingNotesHabit) { habit in
+            NavigationView {
+                Form {
+                    TextEditor(text: $noteDraft)
+                        .frame(minHeight: 100)
+                }
+                .navigationTitle("Habit Notes")
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Save") {
+                            store.updateNotes(for: habit, notes: noteDraft)
+                            editingNotesHabit = nil
+                        }
+                    }
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel") { editingNotesHabit = nil }
                     }
                 }
             }
@@ -194,6 +229,10 @@ struct HabitsView: View {
                     addSubParent = habit
                     newSubName = ""
                     newSubTarget = 1
+                }
+                Button("Edit Notes") {
+                    editingNotesHabit = habit
+                    noteDraft = habit.notes
                 }
             } label: {
                 Image(systemName: "ellipsis")
