@@ -21,36 +21,23 @@ struct HabitsView: View {
         VStack {
             DateHeader(manager: manager)
 
-            List {
-                ForEach(store.habits(for: manager.selectedDate)) { habit in
-                    Section(header: habitHeader(habit)) {
-                        ForEach(habit.subHabits) { sub in
-                            HStack {
-                                VStack(alignment: .leading) {
-                                    Text(sub.title)
-                                    ProgressView(value: Double(store.progress(for: sub, on: manager.selectedDate)), total: Double(sub.target))
-                                        .progressViewStyle(.linear)
-                                        .tint(color(for: store.status(for: sub, on: manager.selectedDate)))
-                                    Text("\(store.progress(for: sub, on: manager.selectedDate))/\(sub.target)")
-                                        .font(.caption)
-                                        .foregroundColor(color(for: store.status(for: sub, on: manager.selectedDate)))
-                                }
-                                Spacer()
-                                if store.status(for: sub, on: manager.selectedDate) != .completed {
-                                    Button(action: { store.increment(sub, on: manager.selectedDate) }) {
-                                        Image(systemName: "plus.circle")
-                                    }
-                                } else {
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .foregroundColor(.green)
-                                }
-                            }
-
+            ScrollView {
+                if store.habits(for: manager.selectedDate).isEmpty {
+                    Text("No habits for \(formattedDate)")
+                        .foregroundColor(.secondary)
+                        .padding()
+                } else {
+                    LazyVStack(spacing: 12) {
+                        ForEach(store.habits(for: manager.selectedDate)) { habit in
+                            habitCard(habit)
                         }
                     }
+                    .padding(.horizontal)
+                    .padding(.top, 8)
                 }
             }
-            .listStyle(.insetGrouped)
+
+            Spacer()
 
             Button("Add Habit") {
                 habitName = ""
@@ -201,6 +188,41 @@ struct HabitsView: View {
                     .padding(.leading, 4)
             }
         }
+    }
+
+    private func habitCard(_ habit: Habit) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            habitHeader(habit)
+
+            ForEach(habit.subHabits) { sub in
+                HStack {
+                    VStack(alignment: .leading) {
+                        Text(sub.title)
+                        ProgressView(value: Double(store.progress(for: sub, on: manager.selectedDate)), total: Double(sub.target))
+                            .progressViewStyle(.linear)
+                            .tint(color(for: store.status(for: sub, on: manager.selectedDate)))
+                        Text("\(store.progress(for: sub, on: manager.selectedDate))/\(sub.target)")
+                            .font(.caption)
+                            .foregroundColor(color(for: store.status(for: sub, on: manager.selectedDate)))
+                    }
+                    Spacer()
+                    if store.status(for: sub, on: manager.selectedDate) != .completed {
+                        Button(action: { store.increment(sub, on: manager.selectedDate) }) {
+                            Image(systemName: "plus.circle")
+                        }
+                    } else {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                    }
+                }
+            }
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color(.secondarySystemBackground))
+        )
     }
 
 }
