@@ -48,18 +48,21 @@ class HabitStore: ObservableObject {
         context.insert(habit)
         weeklyHabits[week, default: []].append(habit)
         try? context.save()
+        objectWillChange.send()
     }
 
     /// Rename an existing habit in a given week.
     func renameHabit(_ habit: Habit, to newTitle: String, for date: Date) {
         habit.title = newTitle
         try? context.save()
+        objectWillChange.send()
     }
 
     /// Add a new sub-habit to an existing habit in the given week.
     func addSubHabit(to habit: Habit, title: String, target: Int, for date: Date) {
         habit.subHabits.append(SubHabit(title: title, target: target))
         try? context.save()
+        objectWillChange.send()
     }
 
     // MARK: Progress helpers
@@ -102,6 +105,7 @@ class HabitStore: ObservableObject {
             context.insert(progress)
         }
         try? context.save()
+        objectWillChange.send()
     }
 
     /// Convenience method to increase progress by one.
