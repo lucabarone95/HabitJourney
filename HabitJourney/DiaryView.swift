@@ -13,12 +13,20 @@ struct DiaryView: View {
 
             if let entry = store.entry(for: manager.selectedDate) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Thoughts")
-                        .font(.headline)
+                    Label {
+                        Text("Thoughts")
+                    } icon: {
+                        Image(systemName: "lightbulb")
+                    }
+                    .font(.headline)
                     Text(entry.thoughts)
                     Divider()
-                    Text("Emotions")
-                        .font(.headline)
+                    Label {
+                        Text("Emotions")
+                    } icon: {
+                        Image(systemName: "face.smiling")
+                    }
+                    .font(.headline)
                     Text(entry.emotions)
                 }
                 .padding()
@@ -36,22 +44,41 @@ struct DiaryView: View {
 
             Spacer()
 
-            Button(store.entry(for: manager.selectedDate) == nil ? "Add Entry" : "Edit Entry") {
+            Button {
                 let existing = store.entry(for: manager.selectedDate)
                 draftThoughts = existing?.thoughts ?? ""
                 draftEmotions = existing?.emotions ?? ""
                 showEditor = true
+            } label: {
+                if store.entry(for: manager.selectedDate) == nil {
+                    Label("Add Entry", systemImage: "plus.circle")
+                } else {
+                    Label("Edit Entry", systemImage: "pencil.circle")
+                }
             }
             .buttonStyle(.borderedProminent)
+            .font(.title2)
             .padding()
         }
         .sheet(isPresented: $showEditor) {
             NavigationView {
                 Form {
-                    Section(header: Text("Thoughts")) {
+                    Section(header:
+                                Label {
+                                    Text("Thoughts")
+                                } icon: {
+                                    Image(systemName: "lightbulb")
+                                }
+                                .font(.headline)) {
                         TextEditor(text: $draftThoughts).frame(minHeight: 100)
                     }
-                    Section(header: Text("Emotions")) {
+                    Section(header:
+                                Label {
+                                    Text("Emotions")
+                                } icon: {
+                                    Image(systemName: "face.smiling")
+                                }
+                                .font(.headline)) {
                         TextEditor(text: $draftEmotions).frame(minHeight: 100)
                     }
                 }

@@ -39,15 +39,18 @@ struct HabitsView: View {
 
             Spacer()
 
-            Button("Add Habit") {
+            Button {
                 habitName = ""
                 subHabitName = ""
                 target = 1
                 category = .other
 
                 showEditor = true
+            } label: {
+                Label("Add Habit", systemImage: "plus.circle")
             }
             .buttonStyle(.borderedProminent)
+            .font(.title2)
             .padding()
             .disabled(store.habits(for: manager.selectedDate).count >= 3)
         }
@@ -58,14 +61,16 @@ struct HabitsView: View {
                         TextField("Title", text: $habitName)
                         Picker("Category", selection: $category) {
                             ForEach(HabitCategory.allCases) { cat in
-                                Text(cat.rawValue).tag(cat)
+                                Label(cat.rawValue, systemImage: cat.icon)
+                                    .tag(cat)
                             }
                         }
                     }
                     Section("First Sub-Habit") {
                         TextField("Title", text: $subHabitName)
                         Stepper(value: $target, in: 1...10) {
-                            Text("Target: \(target)")
+                            Label("Target: \(target)", systemImage: "target")
+                                .font(.headline)
                         }
 
                     }
@@ -117,7 +122,8 @@ struct HabitsView: View {
                 Form {
                     TextField("Title", text: $newSubName)
                     Stepper(value: $newSubTarget, in: 1...10) {
-                        Text("Target: \(newSubTarget)")
+                        Label("Target: \(newSubTarget)", systemImage: "target")
+                            .font(.headline)
                     }
                 }
                 .navigationTitle("New Sub-Habit")
@@ -161,9 +167,13 @@ struct HabitsView: View {
 
     private func habitHeader(_ habit: Habit) -> some View {
         HStack {
+            Image(systemName: habit.category.icon)
+                .foregroundColor(.accentColor)
+                .padding(.trailing, 4)
             VStack(alignment: .leading) {
                 Text(habit.title)
-                Text(habit.category.rawValue)
+                    .font(.title2)
+                Label(habit.category.rawValue, systemImage: habit.category.icon)
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
@@ -185,7 +195,8 @@ struct HabitsView: View {
             } label: {
                 Image(systemName: "ellipsis")
                     .rotationEffect(.degrees(90))
-                    .padding(.leading, 4)
+                    .padding(8)
+                    .frame(minWidth: 44, minHeight: 44)
             }
         }
     }

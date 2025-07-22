@@ -39,5 +39,6 @@ class DiaryStore: ObservableObject {
             entries[day] = entry
         }
         try? context.save()
+        objectWillChange.send()
     }
 }

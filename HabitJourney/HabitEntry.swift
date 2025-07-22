@@ -8,6 +8,15 @@ enum HabitCategory: String, CaseIterable, Codable, Identifiable {
     case other = "Other"
 
     var id: String { rawValue }
+
+    /// SFSymbol representing the category for display purposes.
+    var icon: String {
+        switch self {
+        case .learning: return "book.fill"
+        case .body: return "figure.strengthtraining.traditional"
+        case .other: return "circle.grid.3x3.fill"
+        }
+    }
 }
 
 /// A single sub-habit that contributes to the completion of a main habit.
