@@ -83,6 +83,9 @@ class HabitStore: ObservableObject {
 
     /// Sets the progress for a sub-habit on the provided date.
     func setProgress(_ value: Int, for subHabit: SubHabit, on date: Date) {
+        // Notify listeners that progress will change so the UI refreshes
+        objectWillChange.send()
+
         let dayStart = Calendar.current.startOfDay(for: date)
         guard let dayEnd = Calendar.current.date(byAdding: .day, value: 1, to: dayStart) else { return }
         let subHabitID = subHabit.id
