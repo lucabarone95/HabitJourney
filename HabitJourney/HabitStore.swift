@@ -107,7 +107,8 @@ class HabitStore: ObservableObject {
     /// Convenience method to increase progress by one.
     func increment(_ subHabit: SubHabit, on date: Date) {
         let current = progress(for: subHabit, on: date)
-        setProgress(current + 1, for: subHabit, on: date)
+        let newValue = min(current + 1, subHabit.target)
+        setProgress(newValue, for: subHabit, on: date)
     }
     // MARK: Progress helpers
 
