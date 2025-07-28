@@ -160,7 +160,7 @@ struct HabitsView: View {
     }
 
     private func habitHeader(_ habit: Habit) -> some View {
-        HStack {
+        HStack(alignment: .top) {
             VStack(alignment: .leading) {
                 Text(habit.title)
                     .font(.title3)
@@ -171,9 +171,26 @@ struct HabitsView: View {
             }
             Spacer()
             if store.status(for: habit, on: manager.selectedDate) == .completed {
-                Image(systemName: "checkmark.circle.fill").foregroundColor(.green)
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundColor(.green)
+            }
+            Button {
+                addSubParent = habit
+                newSubName = ""
+                newSubTarget = 1
+            } label: {
+                Image(systemName: "plus.circle")
+            }
+
+            Button {
+                editingHabit = habit
+                renameTitle = habit.title
+                showRename = true
+            } label: {
+                Image(systemName: "pencil.circle")
             }
         }
+        .padding(.bottom, 8)
     }
 
     private func habitCard(_ habit: Habit) -> some View {
@@ -208,25 +225,6 @@ struct HabitsView: View {
                         .fill(Color(.systemBackground))
                 )
                 .shadow(color: Color.black.opacity(0.1), radius: 1, x: 0, y: 1)
-            }
-
-            HStack(spacing: 16) {
-                Spacer()
-                Button {
-                    addSubParent = habit
-                    newSubName = ""
-                    newSubTarget = 1
-                } label: {
-                    Image(systemName: "plus.circle")
-                }
-
-                Button {
-                    editingHabit = habit
-                    renameTitle = habit.title
-                    showRename = true
-                } label: {
-                    Image(systemName: "pencil.circle")
-                }
             }
         }
         .padding()
