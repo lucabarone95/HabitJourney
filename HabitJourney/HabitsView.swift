@@ -201,10 +201,11 @@ struct HabitsView: View {
                 HStack {
                     VStack(alignment: .leading) {
                         Text(sub.title)
-                        ProgressView(value: Double(store.progress(for: sub, on: manager.selectedDate)), total: Double(sub.target))
+                        let progress = store.progress(for: sub, on: manager.selectedDate)
+                        ProgressView(value: Double(min(progress, sub.target)), total: Double(sub.target))
                             .progressViewStyle(.linear)
                             .tint(color(for: store.status(for: sub, on: manager.selectedDate)))
-                        Text("\(store.progress(for: sub, on: manager.selectedDate))/\(sub.target)")
+                        Text("\(progress)/\(sub.target)")
                             .font(.caption)
                             .foregroundColor(color(for: store.status(for: sub, on: manager.selectedDate)))
                     }
@@ -218,7 +219,8 @@ struct HabitsView: View {
                             .foregroundColor(.green)
                     }
                 }
-                .padding(8)
+                .padding(.vertical, 8)
+                .padding(.horizontal, 4)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(
                     RoundedRectangle(cornerRadius: 8)
