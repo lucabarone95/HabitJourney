@@ -163,6 +163,8 @@ struct HabitsView: View {
         HStack {
             VStack(alignment: .leading) {
                 Text(habit.title)
+                    .font(.title3)
+                    .fontWeight(.semibold)
                 Text(habit.category.rawValue)
                     .font(.caption)
                     .foregroundColor(.secondary)
@@ -170,22 +172,6 @@ struct HabitsView: View {
             Spacer()
             if store.status(for: habit, on: manager.selectedDate) == .completed {
                 Image(systemName: "checkmark.circle.fill").foregroundColor(.green)
-            }
-            Menu {
-                Button("Rename") {
-                    editingHabit = habit
-                    renameTitle = habit.title
-                    showRename = true
-                }
-                Button("Add Sub Habit") {
-                    addSubParent = habit
-                    newSubName = ""
-                    newSubTarget = 1
-                }
-            } label: {
-                Image(systemName: "ellipsis")
-                    .rotationEffect(.degrees(90))
-                    .padding(.leading, 4)
             }
         }
     }
@@ -214,6 +200,32 @@ struct HabitsView: View {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundColor(.green)
                     }
+                }
+                .padding(8)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color(.systemBackground))
+                )
+                .shadow(color: Color.black.opacity(0.1), radius: 1, x: 0, y: 1)
+            }
+
+            HStack(spacing: 16) {
+                Spacer()
+                Button {
+                    addSubParent = habit
+                    newSubName = ""
+                    newSubTarget = 1
+                } label: {
+                    Image(systemName: "plus.circle")
+                }
+
+                Button {
+                    editingHabit = habit
+                    renameTitle = habit.title
+                    showRename = true
+                } label: {
+                    Image(systemName: "pencil.circle")
                 }
             }
         }
